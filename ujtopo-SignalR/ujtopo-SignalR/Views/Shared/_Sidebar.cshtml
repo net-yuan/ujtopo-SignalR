@@ -1,0 +1,29 @@
+﻿@using WebHelpers.Mvc5
+<aside class="main-sidebar">
+    <section class="sidebar">
+        <!-- Sidebar user panel -->
+        <div class="user-panel">
+            <div class="pull-left image">
+                <img src="/Images/ujtopo/net-yuan.png" class="img-circle" alt="User Image">
+            </div>
+            <div class="pull-left info">
+                <p>net-yuan</p>
+                <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+            </div>
+        </div>
+        @* BEGIN Menu *@
+        <ul class="sidebar-menu" data-widget="tree">
+            <li><a href="http://net-yuan.com" target="_blank"><i class="fa fa-heart"></i> net-yuan主页</a></li>
+            <li class="@Url.IsLinkActive("About", "Home")">
+                <a href="@Url.Action("About", "Home")"><i class="fa fa-cube"></i> <span>ujtopo-简介</span></a>
+            </li>
+            <li class="@Url.IsLinkActive("Designer", "Home")">
+                <a href="@Url.Action("Designer", "Home")"><i class="fa fa-rocket"></i> <span>ujtopo-设计视图</span></a>
+            </li>
+            <li class="@Url.IsLinkActive("Index", "Home")">>
+                <a href="@Url.Action("Index", "Home")"><i><i class="fa fa-sitemap"></i> <span>ujtopo-显示视图</span></a>
+            </li>
+        </ul>
+        @* END Menu *@
+    </section>
+</aside>

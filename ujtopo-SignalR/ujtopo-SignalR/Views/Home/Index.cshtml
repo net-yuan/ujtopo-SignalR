@@ -1,0 +1,149 @@
+﻿@{
+    ViewBag.Title = "Index";
+    ViewBag.Description = "Home Page";
+}
+<div class="row">
+    <div class="col-md-9">
+        <!-- Horizontal Form -->
+        <div class="box box-info">
+            <div class="box-header with-border">
+                <h3 class="box-title">ujtopo----显示视图<span id="spSiteName"></span></h3>
+                <div class="box-tools pull-right hide">
+                    <a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
+                </div>
+                <!-- /.box-tools -->
+            </div>
+            <!-- /.box-header -->
+
+            <div class="box-body chart-responsive" id="topoP">
+                <div id="ptopo">
+                    <!--<canvas width="888" height="750" id="canvas" style="background-color: rgb(238, 238, 238); border: 1px solid rgb(68, 68, 68); cursor: default;"></canvas>-->
+                </div>
+            </div>
+        </div>
+        <!-- /. box -->
+    </div>
+    <!-- /.col -->
+    <div class="col-md-3">
+        <!-- /. box -->
+        <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+                <h3 class="box-title">ujtopo</h3>
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                        <i class="fa fa-minus"></i>
+                    </button>
+                </div>
+                <!-- /.box-tools -->
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                <p><button class="btn btn-info" onclick="clkTest();">数据模拟</button></p>
+                <dl id="dt-list-1">
+                    <dt>ujtopo是基于jTopo的拓扑图设计工具库</dt>
+                    <dt>1、完全开源免费</dt>
+                    <dt>2、分为设计视图和显示视图，设计视图中可以选择线形，（直线、折线、反折线，后面还可以增加曲线、二次折线等）、选择线条颜色</dt>
+                    <dt>3、节点数据增加id和type以及唯一标识uid，可以为不同类型的节点定义不同的行为</dt>
+                    <dt>4、节点数据和连接数据可以保存</dt>
+                    <dt>5、可以从数据源读取节点数据和连接数据，解析数据，显示拓扑图形</dt>
+                    <dt>6、支持告警显示(待扩展)</dt>
+                </dl>
+            </div>
+            <!-- /.box-body -->
+        </div>
+    </div>
+    <!-- /.col -->
+</div>
+<!-- /.row -->
+
+@section Scripts {
+    @Scripts.Render("~/Bundles/ujtopo")
+    <script src="@Url.Content("~/Scripts/jquery.signalR-2.4.0.min.js")"></script>
+    <script src="@Url.Content("~/signalr/hubs")" type="text/javascript"></script>
+    <script>
+        //var nodeList = [{ "x": 8, "y": 8, "id": 1, "type": 1, "img": "Images/statistics/UPS.png", "title": "", "uid": "j_1" }, { "x": 1106, "y": 710, "id": 2, "type": 1, "img": "Images/statistics/UPS.png", "title": "", "uid": "j_2" }, { "x": 9, "y": 710, "id": 21, "type": 1, "img": "Images/statistics/UPS.png", "title": "", "uid": "j_21" }, { "x": 1103, "y": 9, "id": 22, "type": 1, "img": "Images/statistics/UPS.png", "title": "", "uid": "j_22" }];
+        //var linkList = [{ "lineType": 1, "lineColor": "", "xArgs": { "x": 8, "y": 8, "id": 1, "type": 1, "img": "Images/statistics/UPS.png", "title": "", "uid": "j_1" }, "yArgs": { "x": 9, "y": 710, "id": 21, "type": 1, "img": "Images/statistics/UPS.png", "title": "", "uid": "j_21" } }, { "lineType": 1, "lineColor": "", "xArgs": { "x": 9, "y": 710, "id": 21, "type": 1, "img": "Images/statistics/UPS.png", "title": "", "uid": "j_21" }, "yArgs": { "x": 1106, "y": 710, "id": 2, "type": 1, "img": "Images/statistics/UPS.png", "title": "", "uid": "j_2" } }, { "lineType": 1, "lineColor": "", "xArgs": { "x": 1106, "y": 710, "id": 2, "type": 1, "img": "Images/statistics/UPS.png", "title": "", "uid": "j_2" }, "yArgs": { "x": 1103, "y": 9, "id": 22, "type": 1, "img": "Images/statistics/UPS.png", "title": "", "uid": "j_22" } }, { "lineType": 1, "lineColor": "", "xArgs": { "x": 1103, "y": 9, "id": 22, "type": 1, "img": "Images/statistics/UPS.png", "title": "", "uid": "j_22" }, "yArgs": { "x": 8, "y": 8, "id": 1, "type": 1, "img": "Images/statistics/UPS.png", "title": "", "uid": "j_1" } }];
+
+        var nodeList = [];
+        var linkList = [];
+        var nodeListStr = localStorage.getItem("nodeList");    //获取存储的信息，也是字符串格式
+        var linkListStr = localStorage.getItem("linkList");    //获取存储的信息，也是字符串格式
+        if (nodeListStr != null) {
+            nodeList = JSON.parse(nodeListStr);      //将JSON数据反序列化为对象
+        }
+        if (linkListStr != null) {
+            linkList = JSON.parse(linkListStr);      //将JSON数据反序列化为对象
+        }
+        console.log(linkList);
+        var jtopo;
+        $(function () {
+            $('input[type="checkbox"], input[type="radio"]').iCheck({
+                checkboxClass: "icheckbox_minimal-blue",
+                radioClass: "iradio_minimal-blue"
+            });
+
+            var wid = $("#topoP").width() - 10;
+            var windowH = $(window).height();
+            var hei = windowH - 200;
+
+            $("#ptopo").append('<canvas width="' + wid + '" height="' + hei + '" id="canvas" style="width:100%;margin-bottom:-5px;  border: 1px solid rgb(68, 68, 68); cursor: default;"></canvas>');
+            intTopo();
+        })
+
+        var intTopo = function () {
+            var _config = { designer: true };
+            jtopo = new ujtopo(_config);
+            jtopo.init();
+
+            for(let node of nodeList) {
+                jtopo.addNode(node);
+            }
+
+            for(let link of linkList) {
+                var lineType = link.lineType; //线形
+                var lineColor = link.lineColor; //线颜色
+
+                var b_uid = link.xArgs.uid;
+                var e_uid = link.yArgs.uid;
+
+                var beginNode = jtopo.findNode(b_uid);
+                var endNode = jtopo.findNode(e_uid);
+                jtopo.setLineType(lineType);
+                jtopo.setLineColor(lineColor);
+                getLine(beginNode, endNode);
+            }
+            startConn();
+        }
+
+        var startConn = function () {
+            var connection = $.hubConnection();
+            var hub = connection.createHubProxy("ChartHub");
+            hub.on("updateChart", function (chart) {
+                statisticsData = chart;
+                console.log(statisticsData);
+                debugger
+                var tmp = statisticsData % 2;
+                if (tmp == 1) {
+                    var eNode = jtopo.findNode('j_10');
+                    if (eNode != null && eNode != undefined) {
+                        eNode.setImage("/Images/ujtopo/net-yuan.png", true);
+                    }
+                }
+                else {
+                    var eNode = jtopo.findNode('j_10');
+                    if (eNode != null && eNode != undefined) {
+                        eNode.setImage("/Images/ujtopo/comb-brush-hair-make.png", true);
+                    }
+                }
+            });
+
+            connection.start();
+        }
+        var clkTest = function () {
+            $.post("/api/Data", null, function (res) {
+                console.log(res);
+                //$("#spClicks").text(res);
+            }, "json")
+        }
+    </script>
+}
